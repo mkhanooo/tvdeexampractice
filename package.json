@@ -1,0 +1,9 @@
+{
+  "name": "tvde-exam-practice",
+  "private": true,
+  "version": "1.0.0",
+  "description": "TVDE exam practice app with a local server that saves question edits straight to disk.",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
