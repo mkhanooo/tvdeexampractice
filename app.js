@@ -100,21 +100,38 @@
   }
 
   // ---------- QUIZ ----------
-  // Every call reshuffles the question order from scratch (Math.random); option order within
-  // each question is left exactly as authored (not shuffled).
-  // Any question that has a picture is guaranteed to be included (as many as fit within the requested count).
-  function startQuiz(mode, count, filterFn){
-    var basePool = filterFn ? state.questions.filter(function(q){ return filterFn(q.category); }) : state.questions;
+  // practice-binary: never shuffled — grouped by category, AB first, then SN, then VF.
+  // practice-abc: never shuffled — picture questions first, then the rest in bank order.
+  // test (Full Test / exam): the only mode that shuffles, and still guarantees any
+  // picture question is included (as many as fit within the requested count).
+  function selectBinary(basePool, count){
+    var ab = basePool.filter(function(q){ return q.category === "AB"; });
+    var sn = basePool.filter(function(q){ return q.category === "SN"; });
+    var vf = basePool.filter(function(q){ return q.category === "VF"; });
+    return ab.concat(sn, vf).slice(0, count);
+  }
+  function selectAbc(basePool, count){
+    var withImg = basePool.filter(hasImage);
+    var withoutImg = basePool.filter(function(q){ return !hasImage(q); });
+    return withImg.concat(withoutImg).slice(0, count);
+  }
+  function selectTest(basePool, count){
     var withImg = shuffle(basePool.filter(hasImage));
     var withoutImg = shuffle(basePool.filter(function(q){ return !hasImage(q); }));
-
     var picked;
     if(withImg.length >= count){
       picked = withImg.slice(0, count);
     } else {
       picked = withImg.concat(withoutImg.slice(0, count - withImg.length));
     }
-    picked = shuffle(picked); // don't cluster picture questions together
+    return shuffle(picked); // don't cluster picture questions together
+  }
+  function startQuiz(mode, count, filterFn){
+    var basePool = filterFn ? state.questions.filter(function(q){ return filterFn(q.category); }) : state.questions;
+    var picked;
+    if(mode === "practice-binary") picked = selectBinary(basePool, count);
+    else if(mode === "practice-abc") picked = selectAbc(basePool, count);
+    else picked = selectTest(basePool, count);
 
     var list = picked.map(function(q){
       return {
