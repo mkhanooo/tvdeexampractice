@@ -186,6 +186,21 @@ footer.note{text-align:center; color:var(--muted); font-size:12px; margin-top:24
 .load-error p{color:var(--muted); font-size:14px; line-height:1.6; max-width:520px; margin:0 auto 18px;}
 .load-error code{background:var(--bg); border:1px solid var(--border); padding:2px 6px; border-radius:6px; font-size:13px;}
 
+/* Emoji-wander gate — a stylish placeholder shown before the app unlocks.
+   Not real auth: clicking the hidden 🎈 among ~50 wandering emoji reveals the app. */
+.emoji-gate{position:relative; width:100%; min-height:72vh; overflow:hidden;}
+.emoji-gate .emo{
+  position:absolute; font-size:clamp(20px,3vw,30px); user-select:none; pointer-events:none;
+  animation-name:emoWander; animation-timing-function:ease-in-out; animation-iteration-count:infinite; animation-direction:alternate;
+}
+.emoji-gate .emo.main{cursor:pointer; pointer-events:auto;}
+@keyframes emoWander{
+  0%{transform:translate(0,0);}
+  33%{transform:translate(var(--x1),var(--y1));}
+  66%{transform:translate(var(--x2),var(--y2));}
+  100%{transform:translate(0,0);}
+}
+
 /* ---------- Responsive: tablet ---------- */
 @media (max-width:768px){
   .wrap{padding:18px 14px 50px;}

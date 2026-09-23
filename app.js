@@ -9,6 +9,11 @@
 
   var ORIGINAL_QUESTIONS = null; // filled from the server (or bundled questions.js as fallback) on boot
 
+  // ---------- EMOJI-WANDER GATE ----------
+  // Not real auth — a stylish placeholder shown before the app: ~50 emoji
+  // drift around the screen, and clicking the hidden 🎈 reveals the real page.
+  // No persistence — every reload shows the gate again.
+
   // Deterrent only — not real protection. Blocks right-click, copy/cut, and
   // text selection on the quiz page (questions.js/questions.json are still
   // plain files anyone with the source can read).
@@ -340,5 +345,40 @@
       });
   }
 
-  boot();
+  // ---------- GATE ----------
+  function rnd(min, max){ return Math.random() * (max - min) + min; }
+
+  function showGate(){
+    var header = document.querySelector("header.top");
+    if(header) header.style.display = "none";
+
+    var pool = ["😀","😂","😍","😎","🤔","🥳","😴","🙃","🤩","🌟","🔥","💧","🌈","☀️","🌙",
+      "⚡","❄️","🍀","🌸","🌵","🍉","🍕","🍔","🍩","🍎","🚀","⚽","🎯","🎸","🎮",
+      "📚","🎨","🐶","🐱","🦊","🐼","🦄","🐸","🐢","🦋","🍒","🍓","🥑","🌻","🍁",
+      "🎲","🎁","🧩","🪁","🧸"];
+    var emojis = pool.slice(0, 49);
+    emojis.push("🎈");
+
+    var html = emojis.map(function(emo){
+      var isMain = emo === "🎈";
+      var left = rnd(5, 88).toFixed(1);
+      var top = rnd(8, 82).toFixed(1);
+      var dur = rnd(6, 13).toFixed(1);
+      var delay = rnd(0, 4).toFixed(1);
+      var x1 = rnd(-40, 40).toFixed(0), y1 = rnd(-30, 30).toFixed(0);
+      var x2 = rnd(-40, 40).toFixed(0), y2 = rnd(-30, 30).toFixed(0);
+      var style = "left:" + left + "%; top:" + top + "%; animation-duration:" + dur + "s; animation-delay:" + delay + "s; " +
+        "--x1:" + x1 + "px; --y1:" + y1 + "px; --x2:" + x2 + "px; --y2:" + y2 + "px;";
+      return '<span class="emo' + (isMain ? " main" : "") + '"' + (isMain ? ' id="gateMain"' : "") + ' style="' + style + '">' + emo + '</span>';
+    }).join("");
+
+    mainWrap.innerHTML = '<div class="emoji-gate">' + html + '</div>';
+
+    document.getElementById("gateMain").addEventListener("click", function(){
+      if(header) header.style.display = "";
+      boot();
+    });
+  }
+
+  showGate();
 })();
